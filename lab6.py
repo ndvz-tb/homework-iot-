@@ -4,37 +4,38 @@ import os
 
 class FileNotFound(Exception):
     """
-    Власний виняток, який використовується у випадку,
-    якщо файл не існує під час створення об'єкта класу.
+    Custom exception raised when the file does not exist
+    during the creation of a TextFileHandler object.
     """
-    pass
 
 
 class FileCorrupted(Exception):
     """
-    Власний виняток, який використовується у випадку,
-    якщо виникають проблеми з читанням, записом або доступом до файлу.
+    Custom exception raised when an error occurs during reading,
+    writing, or accessing the file.
     """
     pass
 
 
 def logged(exception, mode="console"):
     """
-    Декоратор для логування винятків.
+    Decorator for logging exceptions.
 
-    exception — тип винятку, який необхідно логувати.
-    mode — режим логування: 'console' або 'file'.
+    Parameters:
+    exception — the exception type that should be logged.
+    mode — logging mode: 'console' or 'file'.
     """
 
     def decorator(func):
         """
-        Внутрішній декоратор, який приймає функцію та повертає обгорнуту версію.
+        Internal decorator that takes a function
+        and returns its wrapped version.
         """
 
         def wrapper(*args, **kwargs):
             """
-            Обгортка для виклику функції.
-            Виконує функцію та перехоплює заданий виняток для логування.
+            Wrapper that executes the function and intercepts the
+            specified exception type for logging.
             """
             try:
                 return func(*args, **kwargs)
@@ -44,7 +45,8 @@ def logged(exception, mode="console"):
 
                 if mode == "file":
                     handler = logging.FileHandler("log.txt", mode="a", encoding="utf-8")
-                else: handler = logging.StreamHandler
+                else:
+                    handler = logging.StreamHandler()
 
                 formatter = logging.Formatter(
                     "%(asctime)s - %(levelname)s - %(message)s"
@@ -65,64 +67,69 @@ def logged(exception, mode="console"):
 
 class TextFileHandler:
     """
-    Клас для роботи з текстовим файлом.
-    Забезпечує читання, запис та дописування з логуванням помилок.
+    A class for working with a text file.
+    Provides reading, writing, and appending with error logging.
     """
 
     def __init__(self, path: str):
         """
-        Конструктор класу.
-        Приймає шлях до файлу та перевіряє його існування.
-        Якщо файл не існує — генерується виняток FileNotFound.
+        Constructor.
+
+        Accepts the path to a file and checks its existence.
+        If the file does not exist, raises FileNotFound.
         """
         self.path = path
 
         if not os.path.exists(path):
-            raise FileNotFound(f"Файл '{path}' не існує!")
+            raise FileNotFound(f"File '{path}' does not exist!")
 
 
     @logged(FileCorrupted, mode="file")
     def read(self):
         """
-        Метод для читання вмісту текстового файлу.
-        У випадку помилки генерує виняток FileCorrupted та логгує його у файл.
+        Reads the content of the text file.
+        If an error occurs, raises FileCorrupted
+        and logs the exception into a file.
         """
         try:
             with open(self.path, "r", encoding="utf-8") as f:
                 return f.read()
         except Exception:
-            raise FileCorrupted("Неможливо прочитати файл!")
+            raise FileCorrupted("Unable to read the file!")
 
 
     @logged(FileCorrupted, mode="console")
     def write(self, text: str):
         """
-        Метод для повного перезапису вмісту файлу.
-        У випадку помилки генерує виняток FileCorrupted та логгує його в консоль.
+        Fully rewrites the file content with the given text.
+        If an error occurs, raises FileCorrupted
+        and logs the exception to the console.
         """
         try:
             with open(self.path, "w", encoding="utf-8") as f:
                 f.write(text)
         except Exception:
-            raise FileCorrupted("Неможливо записати у файл!")
+            raise FileCorrupted("Unable to write to the file!")
 
 
     @logged(FileCorrupted, mode="file")
     def append(self, text: str):
         """
-        Метод для дописування тексту в кінець файлу.
-        У випадку помилки генерує виняток FileCorrupted та логгує його у файл.
+        Appends the given text to the end of the file.
+        If an error occurs, raises FileCorrupted
+        and logs the exception into a file.
         """
         try:
             with open(self.path, "a", encoding="utf-8") as f:
                 f.write(text)
         except Exception:
-            raise FileCorrupted("Неможливо дописати у файл!")
+            raise FileCorrupted("Unable to append to the file!")
+
 
 if __name__ == "__main__":
     """
-    Точка входу в програму.
-    Демонстрація роботи класу TextFileHandler.
+    Entry point of the program.
+    Demonstrates the functionality of TextFileHandler.
     """
 
     file_path = "data_corrupted.txt"
@@ -133,30 +140,24 @@ if __name__ == "__main__":
 
         handler = TextFileHandler(file_path)
 
-        # 2. Штучне пошкодження шляху
-        # Це змусить метод read/append згенерувати внутрішній OSError,
-        # який буде перехоплений і перевиданий як FileCorrupted.
+        # Artificially breaking the path to trigger an error.
         handler.path = "/invalid/path/to/force/error.txt"
 
-        print("Спроба читання, яка має викликати помилку та логування у файл...")
-        
-        # 3. Виклик декорованого методу read() з mode="file"
-        handler.read() 
-        
+        print("Attempting to read (should cause an error and be logged to file)...")
+
+        handler.read()
+
     except FileNotFound as e:
         print(f"[{type(e).__name__}] {e}")
-        
+
     except FileCorrupted as e:
-        # Виняток FileCorrupted буде перехоплений тут,
-        # але ЛОГУВАННЯ У ФАЙЛ ВЖЕ ВІДБУЛОСЯ в декораторі.
         print(f"\n[{type(e).__name__}] {e}")
 
-    # 4. Перевірка: тепер файл log.txt має існувати
     if os.path.exists("log.txt"):
-        print("\n✅ Файл 'log.txt' успішно створено!")
+        print("\n File 'log.txt' successfully created!")
         with open("log.txt", "r", encoding="utf-8") as f:
-            print("--- Вміст log.txt ---")
+            print("--- log.txt content ---")
             print(f.read())
             print("-----------------------")
     else:
-        print("\n❌ Файл 'log.txt' не був створений.")
+        print("\n File 'log.txt' was not created.")
