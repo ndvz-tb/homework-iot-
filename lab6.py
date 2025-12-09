@@ -16,7 +16,6 @@ class FileCorrupted(Exception):
     """
     pass
 
-
 def logged(exception, mode="console"):
     """
     Decorator for logging exceptions.
@@ -62,7 +61,7 @@ def logged(exception, mode="console"):
 
         return wrapper
 
-    return decorator
+    return decorator 
 
 
 class TextFileHandler:
@@ -97,7 +96,6 @@ class TextFileHandler:
         except Exception:
             raise FileCorrupted("Unable to read the file!")
 
-
     @logged(FileCorrupted, mode="console")
     def write(self, text: str):
         """
@@ -111,7 +109,6 @@ class TextFileHandler:
         except Exception:
             raise FileCorrupted("Unable to write to the file!")
 
-
     @logged(FileCorrupted, mode="file")
     def append(self, text: str):
         """
@@ -124,7 +121,6 @@ class TextFileHandler:
                 f.write(text)
         except Exception:
             raise FileCorrupted("Unable to append to the file!")
-
 
 if __name__ == "__main__":
     """
