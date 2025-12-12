@@ -42,22 +42,22 @@ A = [
     [33, 69, -5, 51, 24]
 ]
 
-print("Початкова матриця:")
-for row in A:
-    print(row)
+if __name__ == "__main__":
+    print("Початкова матриця:")
+    for row in matrix:
+        print(row)
 
-bubble_sort_columns(A)
+    bubble_sort_columns(matrix)
 
-print("Матриця після сортування стовпців:")
-for row in A:
-    print(row)
+    print("Матриця після сортування стовпців:")
+    for row in matrix:
+        print(row)
 
-f_values = [geometric_mean(row) for row in A]
+    f_values = [geometric_mean(row) for row in matrix]
 
-print("Середні геометричні значення рядків:")
-for i, value in enumerate(f_values, start=1):
-    print(f"f({i}) = {value}")
+    print("Середні геометричні значення рядків:")
+    for i, value in enumerate(f_values, start=1):
+        print(f"f({i}) = {value}")
 
-F_value = arithmetic_mean(f_values)
-
-print("Середнє арифметичне значень f(i):", F_value)
+    F_value = arithmetic_mean(f_values)
+    print("Середнє арифметичне значень f(i):", F_value)
