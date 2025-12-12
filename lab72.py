@@ -50,20 +50,19 @@ class Queue:
             print(node.value)
             node = node.next
 
+if __name__ == "__main__":
+    queue = Queue()
+    queue.enqueue("Запит 1: авторизація")
+    queue.enqueue("Запит 2: завантаження файлів")
+    queue.enqueue("Запит 3: зміна пароля")
+    queue.enqueue("Запит 4: видалення акаунта")
 
-queue = Queue()
-queue.enqueue("Запит 1: авторизація")
-queue.enqueue("Запит 2: завантаження файлів")
-queue.enqueue("Запит 3: зміна пароля")
-queue.enqueue("Запит 4: видалення акаунта")
+    print("Поточна черга:")
+    queue.show()
 
-print("Поточна черга:")
-queue.show()
-
-print("Обробка запитів:")
-
-while True:
-    req = queue.dequeue()
-    if req is None:
-        break
-    print("Оброблено:", req)
+    print("Обробка запитів:")
+    while True:
+        req = queue.dequeue()
+        if req is None:
+            break
+        print("Оброблено:", req)
